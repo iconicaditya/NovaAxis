@@ -36,14 +36,14 @@ export default function Navbar() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? "bg-white shadow-lg shadow-nova-cyan/10 border-b-2 border-nova-cyan/70"
-            : "bg-white border-b-2 border-gradient-to-r from-nova-cyan/50 via-nova-blue/50 to-nova-cyan/50"
+            ? "bg-white/95 shadow-lg shadow-nova-cyan/10 border-b border-nova-cyan/40"
+            : "bg-white border-b border-nova-cyan/20"
         }`}
         style={{
           borderImage: isScrolled ? undefined : "linear-gradient(to right, rgba(0, 180, 216, 0.6), rgba(0, 119, 182, 0.7), rgba(0, 180, 216, 0.6)) 1"
         }}
       >
-        <div className="w-full max-w-none px-5 sm:px-6 flex items-center py-1">
+        <div className="w-full max-w-none px-4 sm:px-6 flex items-center py-2">
           <div className="w-full flex items-center justify-between">
             {/* Logo */}
             <Link href="/">
@@ -53,7 +53,7 @@ export default function Navbar() {
                   alt="Logo"
                   width={320}
                   height={120}
-                  className="h-20 w-auto object-contain"
+                  className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
                 />
               </div>
             </Link>
@@ -76,7 +76,7 @@ export default function Navbar() {
                             className={`relative z-10 text-base font-bold tracking-[0.02em] transition-colors duration-300 ${
                               isActive
                                 ? "text-nova-navy"
-                                : "text-gray-600 group-hover:text-nova-cyan"
+                                : "text-gray-700 group-hover:text-nova-blue"
                             }`}
                           >
                             {link.name}
@@ -105,7 +105,7 @@ export default function Navbar() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="relative ml-4 px-8 py-3 font-semibold text-nova-cyan border-2 border-nova-cyan hover:border-nova-blue hover:text-nova-blue hover:shadow-lg hover:shadow-nova-cyan/30 transition-all duration-300 overflow-hidden group"
+                    className="relative ml-4 px-8 py-3 font-semibold text-nova-cyan border-2 border-nova-cyan hover:border-nova-blue hover:text-nova-blue hover:shadow-lg hover:shadow-nova-cyan/30 transition-all duration-300 overflow-hidden group rounded-none"
                   >
                     <span className="relative z-10 flex items-center text-[15px]">
                       Contact
@@ -175,10 +175,10 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-80 bg-white/98 backdrop-blur-xl shadow-2xl shadow-nova-cyan/20 border-l-2 border-nova-cyan/70 z-40 lg:hidden overflow-y-auto"
+              className="fixed top-0 right-0 bottom-0 w-80 bg-[#0f1f2c]/98 backdrop-blur-xl shadow-2xl shadow-black/30 border-l border-white/10 z-40 lg:hidden overflow-y-auto"
             >
               <div className="p-8 pt-24">
-                <nav className="space-y-2">
+                <nav className="space-y-2 text-center">
                   {navLinks.map((link, index) => (
                     <motion.div
                       key={link.name}
@@ -190,11 +190,11 @@ export default function Navbar() {
                         href={link.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <div className="relative group px-4 py-3 rounded-lg hover:bg-nova-cyan/10 transition-all duration-300">
-                          <span className="text-lg font-bold text-gray-700 group-hover:text-nova-cyan transition-all duration-300">
+                        <div className="relative group px-4 py-3 hover:bg-nova-cyan/10 transition-all duration-300">
+                          <span className="text-lg font-bold text-white/85 group-hover:text-[#6fe7f3] transition-all duration-300">
                             {link.name}
                           </span>
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-nova-cyan scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
+                          <div className="absolute left-0 right-0 bottom-0 h-0.5 bg-[#6fe7f3] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
                         </div>
                       </Link>
                     </motion.div>
@@ -207,15 +207,17 @@ export default function Navbar() {
                     transition={{ delay: navLinks.length * 0.1, duration: 0.3 }}
                     className="pt-4"
                   >
-                    <Link
-                      href="/contact"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <button className="w-full px-6 py-4 font-semibold text-nova-cyan border-2 border-nova-cyan hover:border-nova-blue hover:text-nova-blue hover:shadow-xl hover:shadow-nova-cyan/30 transition-all duration-300 relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 translate-x-[-100%] group-hover:translate-x-[100%] transition-all duration-700" />
-                        <span className="relative z-10">Contact Us</span>
-                      </button>
-                    </Link>
+                    <div className="flex justify-center">
+                      <Link
+                        href="/contact"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <button className="w-full min-w-[220px] px-6 py-4 font-semibold text-[#0f1f2c] bg-gradient-to-r from-[#6fe7f3] to-[#00b4d8] hover:shadow-xl hover:shadow-[#6fe7f3]/30 transition-all duration-300 relative overflow-hidden group rounded-none">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-0 group-hover:opacity-30 translate-x-[-100%] group-hover:translate-x-[100%] transition-all duration-700" />
+                          <span className="relative z-10">Contact Us</span>
+                        </button>
+                      </Link>
+                    </div>
                   </motion.div>
                 </nav>
 
@@ -224,9 +226,9 @@ export default function Navbar() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.3 }}
-                  className="mt-12 pt-8 border-t border-nova-cyan/20"
+                  className="mt-12 pt-8 border-t border-white/10"
                 >
-                  <p className="text-sm text-gray-500 text-center">
+                  <p className="text-sm text-white/50 text-center">
                     © 2026 Your Brand. All rights reserved.
                   </p>
                 </motion.div>
