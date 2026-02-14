@@ -1,30 +1,211 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Hero() {
   const [isVisible, setIsVisible] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+
+    const pointer = { x: 0, y: 0, active: false };
+    const nodes: {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+    }[] = [];
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.max(1, window.devicePixelRatio || 1);
+      width = Math.floor(rect.width);
+      height = Math.floor(rect.height);
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const area = width * height;
+      const baseCount = Math.floor(area / 9000);
+      const count = Math.max(70, Math.min(220, baseCount));
+      nodes.length = 0;
+      for (let i = 0; i < count; i += 1) {
+        nodes.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          r: 1.1 + Math.random() * 1.9,
+        });
+      }
+    };
+
+    const drawBackground = () => {
+      const gradient = ctx.createLinearGradient(0, 0, 0, height);
+      gradient.addColorStop(0, '#0b2d46');
+      gradient.addColorStop(0.55, '#0b3b59');
+      gradient.addColorStop(1, '#0a2a43');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      const dotSize = 6;
+      const dotSpacing = 22;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      for (let y = dotSpacing / 2; y < height; y += dotSpacing) {
+        for (let x = dotSpacing / 2; x < width; x += dotSpacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, dotSize / 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      const haze = ctx.createRadialGradient(width * 0.2, height * 0.15, 0, width * 0.2, height * 0.15, width * 0.7);
+      haze.addColorStop(0, 'rgba(120, 150, 180, 0.18)');
+      haze.addColorStop(1, 'rgba(120, 150, 180, 0)');
+      ctx.fillStyle = haze;
+      ctx.fillRect(0, 0, width, height);
+
+      const glow = ctx.createRadialGradient(width * 0.7, height * 0.12, 0, width * 0.7, height * 0.12, width * 0.55);
+      glow.addColorStop(0, 'rgba(190, 220, 245, 0.2)');
+      glow.addColorStop(1, 'rgba(190, 220, 245, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+    };
+
+    const drawBokeh = () => {
+      const spots = 6;
+      for (let i = 0; i < spots; i += 1) {
+        const x = (width * (i + 1)) / (spots + 1);
+        const y = height * (0.2 + (i % 3) * 0.22);
+        const r = width * (0.12 + (i % 2) * 0.06);
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, 'rgba(200, 220, 240, 0.18)');
+        g.addColorStop(1, 'rgba(200, 220, 240, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const tick = () => {
+      drawBackground();
+      drawBokeh();
+
+      const maxDist = 170;
+      const maxDistSq = maxDist * maxDist;
+
+      for (const node of nodes) {
+        if (pointer.active) {
+          const dx = pointer.x - node.x;
+          const dy = pointer.y - node.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < 180 * 180) {
+            const dist = Math.sqrt(distSq) || 1;
+            const force = (1 - dist / 180) * 0.6;
+            node.vx += (dx / dist) * force * 0.02;
+            node.vy += (dy / dist) * force * 0.02;
+          }
+        }
+
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < 0 || node.x > width) node.vx *= -1;
+        if (node.y < 0 || node.y > height) node.vy *= -1;
+        node.x = Math.max(0, Math.min(width, node.x));
+        node.y = Math.max(0, Math.min(height, node.y));
+      }
+
+      for (let i = 0; i < nodes.length; i += 1) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j += 1) {
+          const b = nodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < maxDistSq) {
+            const alpha = 1 - distSq / maxDistSq;
+            ctx.lineWidth = 1;
+
+            ctx.strokeStyle = `rgba(20, 60, 90, ${alpha * 0.35})`;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(a.x + 1.2, a.y + 1.6);
+            ctx.lineTo(b.x + 1.2, b.y + 1.6);
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(210, 235, 255, ${alpha * 0.75})`;
+            ctx.shadowColor = 'rgba(140, 200, 240, 0.75)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const node of nodes) {
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = 'rgba(252, 254, 255, 0.98)';
+        ctx.shadowColor = 'rgba(150, 210, 245, 0.9)';
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.shadowBlur = 0;
+      animationId = window.requestAnimationFrame(tick);
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = event.clientX - rect.left;
+      pointer.y = event.clientY - rect.top;
+      pointer.active = true;
+    };
+
+    const handlePointerLeave = () => {
+      pointer.active = false;
+    };
+
+    resize();
+    tick();
+
+    window.addEventListener('resize', resize);
+    canvas.addEventListener('pointermove', handlePointerMove);
+    canvas.addEventListener('pointerleave', handlePointerLeave);
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      canvas.removeEventListener('pointermove', handlePointerMove);
+      canvas.removeEventListener('pointerleave', handlePointerLeave);
+      window.cancelAnimationFrame(animationId);
+    };
+  }, []);
+
   return (
     <section className="relative h-screen w-full overflow-hidden mt-[72px]">
-      {/* Video Background - Full HD Quality */}
-      <div className="absolute inset-0 w-full h-full">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/video.mp4" type="video/mp4" />
-        </video>
-        {/* 50% Transparency Layer */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/50 to-black/80"></div>
-      </div>
+      {/* Animated Network Background */}
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full"></canvas>
+      {/* Contrast Layer */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/50 to-black/80"></div>
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
