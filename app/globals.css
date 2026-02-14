@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 100% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 100% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 100% 12%;
+  --primary: 195 100% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 100% 24%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 195 20% 96%;
+  --muted-foreground: 210 15% 45%;
+  --accent: 195 100% 36%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 195 30% 88%;
+  --input: 195 30% 88%;
+  --ring: 195 100% 42%;
+  --radius: 0.75rem;
+  --nova-cyan: 195 100% 42%;
+  --nova-navy: 210 100% 24%;
+  --nova-blue: 195 100% 36%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20;
+  }
+}
+
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#00B4D8] to-[#1E3A5F];
+}
+
+.nova-gradient {
+  @apply bg-gradient-to-r from-[#00B4D8] via-[#0077B6] to-[#1E3A5F];
+}
