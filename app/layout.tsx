@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "NovaAxis",
   description: "NovaAxis website",
   icons: {
-    icon: "/logo.png",
+    icon: "/Favicon.png",
   },
 };
 

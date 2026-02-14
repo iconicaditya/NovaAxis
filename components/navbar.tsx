@@ -51,7 +51,7 @@ export default function Navbar() {
                 <Image
                   src="/novaaxislogo.png"
                   alt="Logo"
-                  width={280}
+                  width={320}
                   height={120}
                   className="h-20 w-auto object-contain"
                 />
